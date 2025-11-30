@@ -1,0 +1,16 @@
+{
+    "entity_id": "binary_sensor.0x08ddebfffea51992_occupancy",
+    "state": "off",
+    "attributes": {
+        "device_class": "occupancy",
+        "friendly_name": "Kitchen_Motion Занятость"
+    },
+    "last_changed": "2025-11-23T19:04:14.440561+00:00",
+    "last_reported": "2025-11-23T19:04:14.440561+00:00",
+    "last_updated": "2025-11-23T19:04:14.440561+00:00",
+    "context": {
+        "id": "01KAS1MEB8RCH5HZ825NV7BFSC",
+        "parent_id": null,
+        "user_id": null
+    }
+}
