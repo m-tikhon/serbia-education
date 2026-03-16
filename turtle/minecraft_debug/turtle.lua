@@ -1,5 +1,9 @@
 local utf8 = require("utf8")
 
+FixCols = 140
+FixRows = 10
+FixFirstLine = 4
+
 local turtle = {
     loc = {x = 100,y = 100, direction = 0},
     maxX = 200,
@@ -81,6 +85,7 @@ local function term_restore_cursor()
 end
 
 local function term_size()
+--[[ 
     local f = io.popen("stty size")
     local rows, cols = f:read("*n", "*n")
     f:close()
@@ -88,6 +93,26 @@ local function term_size()
         cols = 80
         rows = 25
     end
+
+--
+
+    io.write("\27[18t")
+    io.flush()
+
+    local response = io.read()
+    print(response)
+    -- убираем ESC[
+    response = response:gsub("\27%[", "")
+
+    -- парсим числа
+    local _, rows, cols = response:match("(%d+);(%d+);(%d+)t")
+
+    rows = tonumber(rows)
+    cols = tonumber(cols)
+]]
+
+    local cols = FixCols
+    local rows = FixRows
     return cols, rows
 end
 
@@ -105,7 +130,7 @@ local function debug_state()
     local term_dx, term_dy = term_size()
     local loc = turtle.loc
     term_save_cursor()
-    term_gotoxy(term_dx - dx+1, 1)
+    term_gotoxy(term_dx - dx+1, FixFirstLine)
     local info = (loc.x - viewport.x0) .. ':' .. (loc.y-viewport.y0)
     if #info < viewport.y1 - viewport.y0 then
         info = info .. string.rep(' ', #info - viewport.y1 + viewport.y0)
@@ -122,7 +147,7 @@ local function debug_state()
                 str = str .. ' '
             end
         end
-        term_gotoxy(term_dx - dx+1, y-viewport.y0+2)
+        term_gotoxy(term_dx - dx+1, y-viewport.y0+FixFirstLine+1)
         print(str)
     end
 
@@ -137,7 +162,7 @@ end
 
 
 local function debug_put_block(x, y, name)
-    turtle.labirinth[y + viewport.y0-1][x + viewport.y0-1] = {
+    turtle.labirinth[y + viewport.y0][x + viewport.x0] = {
         wall=true,
         name=name,
     }
@@ -170,7 +195,7 @@ local function debug_add_arr(dx0, dy0, arr, name)
         local y = y_ + viewport.y0 + dy0 - 1
         local arr_line = arr[y_]
         for x_ = 1, #arr_line do
-            local x = x_ + viewport.y0 + dx0 - 2
+            local x = x_ + viewport.x0 + dx0 - 1
             if arr_line[x_] == true or arr_line[x_] == 1 then
                 turtle.labirinth[y][x].wall = true
                 turtle.labirinth[y][x].name = name
@@ -199,6 +224,10 @@ local function refuel(fuel)
     print("Refuel", fuel)
 end
 
+local function getFuelLevel()
+    return 100
+end
+
 local function turnLeft()
     turtle.loc.direction = (turtle.loc.direction+3) % 4
     debug_state_if_enabled()
@@ -212,6 +241,7 @@ end
 
 
 turtle.refuel = refuel
+turtle.getFuelLevel = getFuelLevel
 turtle.turnLeft = turnLeft
 turtle.turnRight = turnRight
 turtle.dig = dig

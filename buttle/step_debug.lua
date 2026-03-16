@@ -1,11 +1,11 @@
-debug_enabled = true
+Debug_enabled = true
 debug_step = true
 start_x = 0
 start_y = 0
 start_z = 0
 
 function debug(str)
-    if debug_enabled then
+    if Debug_enabled then
         print(str)
     end
 end

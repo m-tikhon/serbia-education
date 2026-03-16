@@ -1,8 +1,8 @@
-debug_enabled = true
+Debug_enabled = true
 
 
 function debug(str)
-    if debug_enabled then
+    if Debug_enabled then
         print(str)
     end
 end
