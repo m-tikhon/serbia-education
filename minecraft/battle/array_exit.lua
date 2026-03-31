@@ -14,6 +14,7 @@ local turtle_state = {
     },
     start = {x = 3, y = 4},
     finish = {x = 7, y = 3},
+    direction = { [???] 0..3 | '+x' },
 }
 
 
@@ -41,7 +42,7 @@ local function fill_step_near(turtle_state, next_cells, x, y, step)
         turtle_state.labirinth[x][y] = step
         local length = #next_cells
         next_cells[length+1] = {x=x, y=y}
-    end 
+    end
 end
 
 local function fill_step(turtle_state, prev_cells, step)
@@ -53,20 +54,25 @@ local function fill_step(turtle_state, prev_cells, step)
         fill_step_near(turtle_state, next_cells, x - 1, y, step)
         fill_step_near(turtle_state, next_cells, x, y + 1, step)
     end
+    return next_cells
 end
 
 
 local function fill_steps(turtle_state)
-    local prev_cells = {
-        {x=???????,y=????????}
-    } -- start
-    local x,y = turtle_state.start[1],turtle_state.start[2]
-    turtle_state.labirinth[x][y] = 0
-    for i = 1, 100 do
-        prev_cells = fill_step(turtle_state, prev_cells, i)
-
-        ??? test #prev_cells == 0
-        ??? test finish filled
+    local start = turtle_state.start
+    local finish = turtle_state.finish
+    local prev_cells = {start}
+    turtle_state.labirinth[start.x][start.y] = 0
+    local step = 0
+    while true do
+        step = step + 1
+        prev_cells = fill_step(turtle_state, prev_cells, step)
+        if turtle_state.labirinth[finish.x][finish.y] == step then
+            break
+        end
+        if #prev_cells == 0 then
+            break
+        end
     end
 end
 
