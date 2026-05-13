@@ -1,5 +1,6 @@
 local utf8 = require("utf8")
 
+-- terminal info
 FixCols = 140
 FixRows = 10
 FixFirstLine = 4
@@ -10,7 +11,8 @@ local turtle = {
     maxY = 200,
     -- wall: boolean, name: string
     labirinth = {},
-    debug = false
+    debug = true,
+    direction = 0
 }
 
 local directions = {
@@ -188,6 +190,25 @@ local function debug_init_viewport(dx0, dy0, dx1, dy1, name)
     debug_state_if_enabled()
 end
 
+local function debug_init2(labirinth_size, turtle_loc, wall_name)
+    turtle.loc = {x = turtle_loc.x+1, y = turtle_loc.y+1, direction = turtle_loc.direction}
+    local x0 = 1
+    local y0 = 1
+    local x1 = labirinth_size.x+2
+    local y1 = labirinth_size.y+2
+    viewport = {x0=1, y0=1, x1=x1, y1=y1}
+
+    for x=x0,x1 do
+        turtle.labirinth[y0][x] = {wall=true, name=wall_name}
+        turtle.labirinth[y1][x] = {wall=true, name=wall_name}
+    end
+    for y=y0,y1 do
+        turtle.labirinth[y][x0] = {wall=true, name=wall_name}
+        turtle.labirinth[y][x1] = {wall=true, name=wall_name}
+    end
+    debug_state_if_enabled()
+end
+
 --@param dx0 number
 --@param dy0 number
 local function debug_add_arr(dx0, dy0, arr, name)
@@ -252,6 +273,7 @@ turtle.back = back
 
 turtle.debug_put_block = debug_put_block
 turtle.debug_init_viewport = debug_init_viewport
+turtle.debug_init2 = debug_init2
 turtle.debug_state = debug_state
 turtle.debug_add_arr = debug_add_arr
 turtle.debug_enable = debug_enable
