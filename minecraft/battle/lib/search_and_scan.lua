@@ -1,39 +1,5 @@
-local labirinth_debug
-local next_coordinates
-
-local function debug_init()
-    turtle = require("minecraft.turtle_debug.turtle")
--- local textutils = require("textutils")
-    turtle.debug_enable(true)
-    turtle.debug_init_viewport(4, 3, 5, 3, 'minecraft:wall')
-    turtle.debug_put_block(1, 1, 'minecraft:soul_soil')
-    turtle.debug_add_arr(3, 2, {
-        { 1, 1, 1, 1, 1, 1 },
-        { 1, 0, 0, 0 },
-        { 1, 1, 0, 0 }
-    }, 'minecraft:wall3')
-end
-
-
-MaxX, MaxY = 10, 10
-WindowX0, WindowY0, WindowX1, WindowY1 = 1, 1, 10, 10
-
-Debug_enabled = true
-
-local function debug(str)
-    if Debug_enabled then
-        print(str)
-    end
-end
-
-
--- 0 заправиться
-local function refuel()
-    turtle.refuel(64)
-    local fuel = turtle.getFuelLevel()
-    debug(fuel)
-end
-
+local common = require('lib.common')
+local debug = common.debug
 
 
 local function init_array(turtle_state)
@@ -48,12 +14,7 @@ local function init_array(turtle_state)
 end
 
 
-local function update_coordinates(turtle_state)
-    turtle_state.x, turtle_state.y = next_coordinates(turtle_state)
-end
-
-
-next_coordinates = function(turtle_state)
+local function next_coordinates(turtle_state)
     local x,y = turtle_state.x, turtle_state.y
     if turtle_state.direction == '-x' then
         x = turtle_state.x - 1
@@ -68,7 +29,9 @@ next_coordinates = function(turtle_state)
 end
 
 
-
+local function update_coordinates(turtle_state)
+    turtle_state.x, turtle_state.y = next_coordinates(turtle_state)
+end
 
 
 local function maze_recording(turtle_state)
@@ -98,7 +61,6 @@ end
 local function turnLeft(turtle_state)
     turtle.turnLeft()
 
-    
     if turtle_state.direction == '-x' then
         turtle_state.direction = '+y'
     elseif turtle_state.direction == '+y' then
@@ -134,7 +96,7 @@ local function block_dig(turtle_state)
 end
 
 
-local function find_block(turtle_state)
+local function search(turtle_state)
     repeat
         -- 1 проверяем блок спереди
         local has_block, data = turtle.inspect()
@@ -142,7 +104,7 @@ local function find_block(turtle_state)
         -- 2 если там стоит блок то разворачиваемся вправо и цикл повторяется
         if has_block then
             if data.name == "minecraft:soul_soil" then
-                finish_recording(turtle_state)
+                --finish_recording(turtle_state)
                 local minecraft_soul_soil = true
                 debug(minecraft_soul_soil)
                 block_dig(turtle_state)
@@ -160,7 +122,7 @@ local function find_block(turtle_state)
             -- 5 смотрим блок
             local has_block2, data2 = turtle.inspect()
             if has_block2 and data2.name == "minecraft:soul_soil" then
-                finish_recording(turtle_state)
+                --finish_recording(turtle_state)
                 local minecraft_soul_soil = true
                 debug(minecraft_soul_soil)
                 block_dig(turtle_state)
@@ -169,7 +131,7 @@ local function find_block(turtle_state)
                 if has_block2 then
                     maze_recording(turtle_state)
                     turnRight(turtle_state)
-                    debug("if:" .. tostring(data2.name))
+                    --debug("if:" .. tostring(data2.name))
                 else
                     -- 7 если там блока нет то идем вперед и повторяем цикл заново
                     forward(turtle_state)
@@ -181,65 +143,7 @@ local function find_block(turtle_state)
 end
 
 
-labirinth_debug = function(turtle_state)
-    for y = WindowY0, WindowY1 do
-        local labirinth_row_string = ''
-        for x = WindowX0, WindowX1 do
-            local labirinth_block_str = ''
-            local labirinth_block = turtle_state.labirinth[x][y]
-            if labirinth_block == true then
-                labirinth_block_str = '#'
-            elseif labirinth_block == false then
-                labirinth_block_str = ' '
-            elseif labirinth_block == 0 then
-                labirinth_block_str = '?'
-            end
-            labirinth_row_string = labirinth_row_string .. labirinth_block_str
-        end
-        print(labirinth_row_string, 'y:', y)
-    end
-    print('direction:' .. turtle_state.direction, 'coordinates', turtle_state.x, turtle_state.y)
-end
-
-
-local function labirinth_debug_file(turtle_state)
-    local f = io.open("debug.txt", "w")
-    io.output(f)
-    io.write(textutils.serialize(turtle_state))
-    io.close(f)
-end
-
-
-local function turtle_return()
-    
-end
-
-
-Directions = { { name = '+x', dx = 1, dy = 0 },
-    { name = '+y', dx = 0,  dy = 1 },
-    { name = '-x', dx = -1, dy = 0 },
-    { name = '-y', dx = 0,  dy = -1 } }
-
-
-local function do_competition()
-    debug_init()
-
-    local turtle_state = {}
-    turtle_state.x = 5
-    turtle_state.y = 5
-    turtle_state.direction = '+x'
-    turtle_state.labirinth = {}
-    turtle_state.block_found = false
-
-    refuel()
-    init_array(turtle_state)
-    find_block(turtle_state)
-end
-
-
--- do_competition()
-
 return {
-    find_block=find_block,
+    search=search,
     init_array=init_array
 }
